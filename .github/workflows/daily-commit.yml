@@ -8,12 +8,12 @@ on:
 jobs:
   daily-commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Configure Git with email 24f2008128@ds.study.iitm.ac.in
         run: |
@@ -22,13 +22,10 @@ jobs:
       
       - name: Create daily update
         run: |
-          date >> daily-log.txt
-          echo "Automated daily update" >> daily-log.txt
+          echo "Automated update on $(date)" >> daily-log.txt
       
-      - name: Commit changes
+      - name: Commit and push changes
         run: |
           git add daily-log.txt
-          git diff --quiet && git diff --staged --quiet || git commit -m "Automated daily update: $(date '+%Y-%m-%d %H:%M:%S')"
-      
-      - name: Push changes
-        run: git push
+          git commit -m "Automated daily update: $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push || echo "Nothing to push"
