@@ -1,0 +1,34 @@
+name: Daily Commit Automation
+
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  daily-commit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git with email 24f2008128@ds.study.iitm.ac.in
+        run: |
+          git config --local user.email "24f2008128@ds.study.iitm.ac.in"
+          git config --local user.name "DevSync Automation"
+      
+      - name: Create daily update
+        run: |
+          date >> daily-log.txt
+          echo "Automated daily update" >> daily-log.txt
+      
+      - name: Commit changes
+        run: |
+          git add daily-log.txt
+          git diff --quiet && git diff --staged --quiet || git commit -m "Automated daily update: $(date '+%Y-%m-%d %H:%M:%S')"
+      
+      - name: Push changes
+        run: git push
